@@ -54,7 +54,7 @@ def preprocess_txt(input_df: pd.DataFrame):
         text = " ".join([stemmer.stem(word) for word in text.split(" ")])
         return text
 
-    processing_steps = [str.lower, remove_stopwords, remove_numbers, stemming]
+    processing_steps = [str.lower, remove_punctuation, remove_stopwords, remove_numbers, stemming]
     for step in processing_steps:
         input_df["text"] = input_df["text"].apply(step)
 
