@@ -1,12 +1,12 @@
 import re
 from collections import Counter
 from pathlib import Path
-from pprint import pprint
 from string import punctuation
 from typing import Tuple
 
 import pandas as pd
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 
 
 def import_datasets(size: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -36,6 +36,7 @@ def preprocess_txt(input_df: pd.DataFrame):
     :param input_df: DataFrame representing a dataset
     :return: None
     """
+
     def remove_punctuation(text):
         text = text.translate(str.maketrans('', '', punctuation))
         return text
@@ -46,13 +47,16 @@ def preprocess_txt(input_df: pd.DataFrame):
 
     def remove_numbers(text):
         text = re.sub(r"\d+", "", text)
-        text = re.sub(r"\d+", "", text)
         return text
 
-    input_df["text"] = input_df["text"].apply(str.lower)
-    input_df["text"] = input_df["text"].apply(remove_punctuation)
-    input_df["text"] = input_df["text"].apply(remove_stopwords)
-    input_df["text"] = input_df["text"].apply(remove_numbers)
+    def stemming(text):
+        stemmer = PorterStemmer()
+        text = " ".join([stemmer.stem(word) for word in text.split(" ")])
+        return text
+
+    processing_steps = [str.lower, remove_stopwords, remove_numbers, stemming]
+    for step in processing_steps:
+        input_df["text"] = input_df["text"].apply(step)
 
 
 def get_n_most_common_tokens(input_df, n):
