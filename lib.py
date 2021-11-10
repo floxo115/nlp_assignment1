@@ -37,26 +37,45 @@ def preprocess_txt(input_df: pd.DataFrame):
     :return: None
     """
 
-    def remove_punctuation(text):
-        text = text.translate(str.maketrans('', '', punctuation))
-        return text
+    # def remove_punctuation(text):
+    #     text = text.translate(str.maketrans('', '', punctuation))
+    #     return text
+    #
+    # def remove_stopwords(text):
+    #     text = [word for word in text.split(" ") if word not in stopwords.words("english")]
+    #     return " ".join(text)
+    #
+    # def remove_numbers(text):
+    #     text = re.sub(r"\d+", "", text)
+    #     return text
+    #
+    # def stemming(text):
+    #     stemmer = PorterStemmer()
+    #     text = " ".join([stemmer.stem(word) for word in text.split(" ")])
+    #     return text
+    #
+    def preprocess_txt(text: str):
+        words_lst = text.split(" ")
+        for i in range(len(words_lst)):
+            words_lst[i] = words_lst[i].lower()
+            # remove word if it is a punctuation, a stopword or numeric
+            if words_lst[i] in punctuation or words_lst[i] in stopwords.words("english") or words_lst[i].isnumeric():
+                words_lst[i] = ""
 
-    def remove_stopwords(text):
-        text = [word for word in text.split(" ") if word not in stopwords.words("english")]
-        return " ".join(text)
+            # set all words to lower case
+            words_lst[i] = words_lst[i].lower()
 
-    def remove_numbers(text):
-        text = re.sub(r"\d+", "", text)
-        return text
+            # stem words with PorterStemmer
+            stemmer = PorterStemmer()
+            words_lst[i] = stemmer.stem(words_lst[i])
 
-    def stemming(text):
-        stemmer = PorterStemmer()
-        text = " ".join([stemmer.stem(word) for word in text.split(" ")])
-        return text
+        return " ".join([word for word in words_lst if word is not ""])
 
-    processing_steps = [str.lower, remove_punctuation, remove_stopwords, remove_numbers, stemming]
-    for step in processing_steps:
-        input_df["text"] = input_df["text"].apply(step)
+            
+
+    # processing_steps = [str.lower, remove_punctuation, remove_stopwords, remove_numbers, stemming]
+
+    input_df["text"] = input_df["text"].apply(preprocess_txt)
 
 
 def get_n_most_common_tokens(input_df, n):
